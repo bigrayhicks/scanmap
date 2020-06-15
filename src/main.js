@@ -67,6 +67,45 @@ const map = new Map(
 );
 const form = new Form(map);
 
+map.map.on('load', function() {
+  map.map.addSource('precincts', {
+    'type': 'geojson',
+    'data': '/static/precincts/ny.geojson'
+  });
+
+  map.map.addLayer({
+    'id': 'precincts',
+    'type': 'fill',
+    'source': 'precincts',
+    'layout': {},
+    'paint': {
+      'fill-opacity': 0
+    }
+  });
+  map.map.addLayer({
+    'id': 'precincts-line',
+    'type': 'line',
+    'source': 'precincts',
+    'layout': {},
+    'paint': {
+      'line-color': '#ff0000',
+      'line-width': 1
+    }
+  });
+
+  let metaEl = document.getElementById('meta');
+  map.map.on('mousemove', (e) => {
+    let f = map.map.queryRenderedFeatures(e.point, {layers: ['precincts']})[0];
+    if (f) {
+      metaEl.style.display = 'block';
+      metaEl.innerText = `Precinct ${f.properties.precinct}`;
+    } else {
+      metaEl.style.display = 'none';
+    }
+  });
+});
+
+
 // For getting current map zoom/center
 window.queryMap = () => {
   console.log(`Zoom:${map.map.getZoom()}`);
